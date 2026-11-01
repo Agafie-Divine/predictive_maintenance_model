@@ -35,3 +35,37 @@ def naca4_normalized(code, n=N_POINTS):
     xu[0] = xl[0] = 0.0; yu[0] = yl[0] = 0.0 # One leading edge point
     
     return np.vstack([np.column_stack([xu[::-1], yu[::1]]), np.column_stack([xl[1:], yl[1:]])])
+
+#--------Turn the unit shape into a real blade section
+def place (loop, chord, z, twist_deg):
+    '''
+    Scale to mm, twist about the quarter-chord, set the span position, split into surfaces.
+    '''
+    X, Y = loop[:, 0] * chord, loop[:, 1] * chord
+    if twist_deg:
+        a, cx = np.radians(twist_deg), 0.25*chord
+        dx = X - cx
+        X, Y = cx + dx*np.cos(a) - Y*np.sin(a), dx*np.sin(a) + Y*np.cos(a)
+    pts = np.column_stack([X, Y, np.full_like(X, z)])
+    ile = int(np.margin(loop[:,0]))
+    upper, lower = pts[:ile+1][::1], pts[ile:]
+    return pts, upper, lower
+
+def build(spec):
+    norm, source = naca4_normalized(spec['code']), f'NACA {spec['code']} 4-digit formula'
+    loop, upper, lower = place(norm, spec['chord'], spec['z'], spec['twist'])
+    for suffix, arr in (('profile', loop), ('upper', upper), ('lower', lower)):
+        np.savetxt(f'{spec['name']}_{suffix}.txt', arr, fmt='%.4f', delimeter='\t')
+    d = np.linalg.norm(np.diff(loop, axis=0), axis=1)
+    print(f'{spec['name']}: {len(loop)} pts | source: {source} | chord {spec['chord']} mm | z {spec['z']} mm | '
+          f'closed: {np.allclose(loop[0], loop[-1])} | zero-length segments: {int((d<1e-6).sum())} | min spacing {d.min():.3f} mm')
+    return loop, source
+
+root, root_src = build(ROOT)
+tip, tip_src = build(TIP)
+
+fig, ax = plt.subplots(figsize=(9, 4))
+ax.plot(root[:, 0], root[:, 1], label=f'Root: {root_src}, chord {ROOT['chord']:.0f} mm')
+ax.plot(tip[:, 0], tip[:, 1], label=f'Tip: {tip_src}, chord {TIP['chord']:.0f} mm')
+ax.set_aspect("equal"); ax.grid(True); ax.legend(fontsize=8, loc='upper right')
+ax.set_xlabel
