@@ -7,6 +7,30 @@ RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
 SETTINGS = [f"op{i}" for i in range(1, 4)]
 SENSORS = [f"s{i}" for i in range(1, 22)]
 COLUMNS = ["unit", "cycle"] + SETTINGS + SENSORS
+SENSOR_SYMBOL = {k: v.split(" - ")[0] for k, v in SENSOR_NAMES.items()}
+SENSOR_NAMES = {
+    "s1": "T2 - Total temperature at fan inlet",
+    "s2": "T24 - Total temperature at LPC outlet",
+    "s3": "T30 - Total temperature at HPC outlet",
+    "s4": "T50 - Total temperature at LPT outlet",
+    "s5": "P2 - Pressure at fan inlet",
+    "s6": "P15 - Total pressure in bypass duct",
+    "s7": "P30 - Total pressure at HPC outlet",
+    "s8": "Nf - Physical fan speed",
+    "s9": "Nc - Physical core speed",
+    "s10": "epr - Engine pressure ratio (P50/P2)",
+    "s11": "Ps30 - Static pressure at HPC outlet",
+    "s12": "phi - Ratio of fuel flow to Ps30",
+    "s13": "NRf - Corrected fan speed",
+    "s14": "NRc - Corrected core speed",
+    "s15": "BPR - Bypass ratio",
+    "s16": "farB - Burner fuel-air ratio",
+    "s17": "htBleed - Bleed enthalpy",
+    "s18": "Nf_dmd - Demanded fan speed",
+    "s19": "PCNfR_dmd - Demanded corrected fan speed",
+    "s20": "W31 - HPT coolant bleed",
+    "s21": "W32 - LPT coolant bleed",
+}
 
 RUL_CAP = 125  # piecewise-linear target: early life is treated as "healthy"
 VALID_SPLITS = {"train", "test"}
